@@ -1,11 +1,10 @@
-from sre_constants import CATEGORY_UNI_LINEBREAK
 import tkinter as tk
-from tkinter import ttk
-
+from tkinter import W, ttk
+import math
 class View(tk.Tk):
     
     PAD = 10
-    button_names = ["C", "+/-", "%", "/", 7, 8, 9, "*", 4, 5, 6, "-", 1, 2, 3, "+", 0, ".", "="]
+    button_names = ["%", "1/x", 7, 4, 1, "+/-", "CE", "x²", 8, 5, 2, 0, "C", "√", 9, 6, 3, ".", "<=", "÷", "×", "-", "+", "="]
 
     def __init__(self, controller):
         super().__init__()
@@ -17,37 +16,38 @@ class View(tk.Tk):
 
         self.value = tk.StringVar()
         self.value2 = tk.StringVar()
-
-        self._frame_create()
-
-        #Rows and Cols
-        self.rowconfigure(0, weight=1)
-        self.columnconfigure(0, weight=1)
-
-        
-        
         self.iconbitmap('calculator_icon.ico')
-        # self._create_entry()
-        # self._create_label()
-
-        for button in self.button_names:
-            self._create_button(name=button, row=1, column=0)
-
+        
+        self.cols = 4
+        self.rows = int(math.ceil(len(self.button_names)/self.cols))
+        i = 0
+        for col in range(self.cols):
+            for row in range(self.rows):
+                self._create_button(name=self.button_names[i], column=col, row=row+1)
+                self.rowconfigure(row, weight=1)
+                self.columnconfigure(col, weight=1)
+                i += 1
+        self._create_label()
+        
     def main(self):
         self.mainloop()
     
     def _frame_create(self):
         self.frame = ttk.Frame(self)
-        self.frame.grid(padx=self.PAD, pady=self.PAD)
+        self.frame.grid(sticky="nsew", row=0, column=0)
 
     def _create_entry(self):
-        entry = ttk.Entry(self.frame, textvariable=self.value)
-        entry.grid()
+        entry = ttk.Entry(textvariable=self.value)
+        entry.grid(row=0, column=0)
     
     def _create_label(self):
-        label1 = ttk.Label(self.frame, textvariable=self.value)
-        label1.grid()
+        font = ttk.Style()
+        font.configure('TLabel',font=('Helvetica', 24))
+        label = ttk.Label(style='TLabel',textvariable=self.value)
+        label.grid(row=0, column=0)
     
-    def _create_button(self,name,row,column):
-        button = ttk.Button(text=name, command=lambda button=name: self.controller.onClick(button))
+    def _create_button(self,name,row=None,column=None):
+        buttonFont = ttk.Style()
+        buttonFont.configure('TButton',font=('Helvetica', 24))
+        button = ttk.Button(text=name, style='TButton', command=lambda button=name: self.controller.onClick(button))
         button.grid(row=row, column=column, sticky="nsew")
